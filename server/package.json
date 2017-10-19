@@ -5,6 +5,8 @@
   "dependencies": {
     "file-type": "^6.2.0",
     "mkdirp": "^0.5.1",
-    "read-chunk": "^2.1.0"
+    "read-chunk": "^2.1.0",
+    "terminal.js": "^1.0.10",
+    "webterm": "^1.0.2"
   }
 }

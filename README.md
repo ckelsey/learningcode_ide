@@ -1,3 +1,4 @@
 # learningcode_ide
 
-npm install --global vue-cli
+npm install -g vue-cli
+npm install -g sinon

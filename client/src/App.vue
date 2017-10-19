@@ -1,19 +1,26 @@
 <template>
   <div id="app">
-    <img src="./assets/logo.png">
+    <navigation></navigation>
     <router-view/>
   </div>
 </template>
 
 <script>
+import navigation from './components/Navigation'
+import codeEditorPane from './components/CodeEditorPane'
+
 export default {
-  name: 'app'
+  name: 'app',
+  components: {
+    navigation,
+    'code-editor-pane': codeEditorPane
+  }
 }
 </script>
 
 <style>
 #app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  font-family: Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
