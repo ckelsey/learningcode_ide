@@ -5,14 +5,16 @@ const sanitize = require("./sanitize")
 /* SET CONTROLLERS */
 
 const controllers = {
-	ctlr: require("./controllers/errors"),
+	getDir: require("./controllers/dir.js"),
+	getFile: require("./controllers/file.js"),
 };
 
 
 
 var routes = {
 	"get": {
-		"/path": "ctlr",
+		"/api/dir": "getDir",
+		"/api/file": "getFile"
 	},
 
 	"post": {},
@@ -71,15 +73,15 @@ function parseBody(body) {
 	return sanitize.object(body)
 }
 
-function handleRequest(res, headers, url, method, body, params, query, files) {
+function handleRequest(res, headers, url, method, body, query, files) {
 
 	controllers[
 		routes[method][url]
-	](res, headers, body, query, params, files)
+	](res, headers, body, query, files)
 
 }
 
-var server = http.createServer().listen(5407);
+var server = http.createServer().listen(1395);
 
 server.on("request", (req, res) => {
 	var url = sanitize.url(req.url)

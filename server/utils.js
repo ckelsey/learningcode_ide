@@ -1,3 +1,9 @@
+exports.resolve = function (res, data) {
+	res.statusCode = data.status
+	res.write(JSON.stringify(data.result))
+	return res.end()
+}
+
 exports.get = function (el, path, emptyVal) {
 	path = [el].concat(path.split("."))
 
