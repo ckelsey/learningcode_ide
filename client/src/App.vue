@@ -11,6 +11,13 @@ import codeEditorPane from './components/CodeEditorPane'
 
 export default {
   name: 'app',
+
+  methods: {
+    handleKeyDown (ev) {
+      console.log(ev)
+    }
+  },
+
   components: {
     navigation,
     'code-editor-pane': codeEditorPane

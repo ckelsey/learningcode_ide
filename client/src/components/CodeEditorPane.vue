@@ -1,57 +1,155 @@
 <template>
-  <div id="editors">
-      <editor v-for="editor in editors" v-bind:editor="editor"></editor>
-      <!-- <pre v-for="editor in editors"><code v-html="formatCode(editor)"></code></pre> -->
+  <div>
+    <file-navigator></file-navigator>
+    <div id="editors">
+      <div id="editor-tabs">
+        <editor-tab v-for="editor in editors" v-bind:editor="editor" :key="editor.path"></editor-tab>
+      </div>
+      <div id="editor-container">
+        <editor v-for="editor in editors" v-bind:editor="editor" :key="editor.path"></editor>
+      </div>
     </div>
+  </div>
 </template>
 
 <script>
-import editor from './Editor'
-// import Vue from 'vue'
-// import Navigation from '@/components/Navigation'
-// import Prism from 'prismjs'
-// require('../../node_modules/prismjs/themes/prism.css')
+import Editor from './Editor'
+import EditorTab from './EditorTab'
+import FileNavigator from './FileNavigator'
+import { EventBus } from '../events.js'
+
+function saveFile (editor) {
+  var xhr = new XMLHttpRequest()
+  xhr.onreadystatechange = () => {
+    if (xhr.readyState === 4 && xhr.status === 200) {
+      editor.saved = true
+      EventBus.$emit('update-editor', editor)
+    }
+  }
+  xhr.open('post', 'http://localhost:1395/api/file', true)
+  xhr.send(JSON.stringify(editor))
+}
 
 export default {
   name: 'CodeEditorPane',
   data () {
     return {
-      editors: [{
-        name: 'afile.js',
-        content: 'var data = 1; \nvar poop ="yas";'
-      }]
+      editors: {}
     }
   },
+
+  created () {
+    this.editors = {}
+
+    EventBus.$on('open-item', (data) => {
+      if (!this.editors[data.path]) {
+        data.saved = true
+        data.originalContent = data.content
+        this.$set(this.editors, data.path, data)
+      }
+
+      for (var i in this.editors) {
+        if (i === data.path) {
+          this.$set(this.editors[i], 'active', true)
+        } else {
+          this.$set(this.editors[i], 'active', false)
+        }
+      }
+    })
+
+    EventBus.$on('activate-item', (data) => {
+      for (var i in this.editors) {
+        if (i === data.path) {
+          this.$set(this.editors[i], 'active', true)
+        } else {
+          this.$set(this.editors[i], 'active', false)
+        }
+      }
+    })
+
+    EventBus.$on('update-editor', (data) => {
+      this.$set(this.editors, data.path, data)
+    })
+
+    EventBus.$on('rename-item', (data) => {
+      if (this.editors[data.path]) {
+        this.$set(this.editors, data.path, data)
+      }
+    })
+
+    EventBus.$on('close-item', (data) => {
+      this.$delete(this.editors, data.path)
+
+      var hasActive = false
+      var lastKey = null
+
+      for (var i in this.editors) {
+        lastKey = i
+
+        if (this.editors[i].active) {
+          hasActive = true
+        }
+      }
+
+      if (!hasActive && lastKey) {
+        this.editors[lastKey].active = true
+        this.$set(this.editors[lastKey], 'active', true)
+        EventBus.$emit('update-editor', this.editors[lastKey])
+      }
+    })
+
+    window.document.addEventListener('keydown', (e) => {
+      if (e.code === 'KeyS' && e.metaKey) {
+        e.preventDefault()
+
+        var editor = null
+
+        for (var i in this.editors) {
+          if (this.editors[i].active) {
+            editor = this.editors[i]
+            break
+          }
+        }
+
+        saveFile(editor)
+      }
+    }, false)
+  },
+
   components: {
-    editor
+    'editor': Editor,
+    'file-navigator': FileNavigator,
+    'editor-tab': EditorTab
   }
 }
-
-// Vue({
-//   el: '#editors',
-//   data: {
-//     editors: [{
-//       filename: 'afile.js',
-//       code: 'var data = 1;'
-//     }]
-//   },
-//   methods: {
-//     formatCode: function (editor) {
-//       var code = editor.code
-//       var html = Prism.highlight(code, Prism.languages.javascript)
-//       return html
-//     }
-//   }
-// })
 </script>
 
 <style scoped>
 #editors{
   position: fixed;
-  width: calc(100% - 70px);
-  left: 70px;
+  width: calc(79% - 70px);
+  left: calc(70px + 21%);
   top: 0px;
   height: 100%;
   text-align: left;
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+}
+
+#editor-container{
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background: #1a2228;
+}
+
+#editor-tabs{
+  display: flex;
+  flex-wrap: wrap;
+  background: #1a2228;
+  color: rgb(147, 165, 178);
+  font-size: 12px;
 }
 </style>

@@ -6,14 +6,11 @@ const utils = require("../utils")
 module.exports = function (res, headers, body, query, files) {
 	var url = config.cwd
 
-	console.log(query);
-
 	if (query.path) {
 		url = path.join(url, query.path)
 	}
 
 	fs.readdir(url, (err, files) => {
-		console.log(err, files)
 
 		if (err) {
 			return utils.resolve(res, { status: 500, result: err })
@@ -21,6 +18,10 @@ module.exports = function (res, headers, body, query, files) {
 
 		var result = {}
 		var count = 0
+
+		if (!files.length) {
+			return utils.resolve(res, { status: 200, result: {} })
+		}
 
 		files.map(file => {
 			result[file] = null
@@ -31,9 +32,16 @@ module.exports = function (res, headers, body, query, files) {
 				}
 
 				result[file] = {
+					name: file,
+					path: path.join(url, file).split(config.cwd)[1],
 					size: data.size,
 					ext: path.extname(file).split(".")[1]
 				}
+
+				if (!result[file].ext) {
+					result[file].children = {}
+				}
+
 				count++
 
 				if (count === files.length) {

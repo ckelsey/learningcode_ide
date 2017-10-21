@@ -7,6 +7,9 @@ const sanitize = require("./sanitize")
 const controllers = {
 	getDir: require("./controllers/dir.js"),
 	getFile: require("./controllers/file.js"),
+	saveFile: require("./controllers/file.save.js"),
+	rename: require("./controllers/rename.js"),
+	deleteItem: require("./controllers/delete.js"),
 };
 
 
@@ -17,9 +20,15 @@ var routes = {
 		"/api/file": "getFile"
 	},
 
-	"post": {},
+	"post": {
+		"/api/file": "saveFile",
+		"/api/rename": "rename",
+		"/api/delete": "deleteItem"
+	},
 
-	"put": {},
+	"put": {
+		"/api/file": "saveFile"
+	},
 
 	"delete": {}
 }
@@ -51,7 +60,7 @@ function parseQuery(url) {
 }
 
 function parseBody(body) {
-	body = body.replace(/</g, "&lt;").replace(/>/g, "&gt;")
+	// body = body.replace(/</g, "&lt;").replace(/>/g, "&gt;")
 	try {
 		body = JSON.parse(body)
 	} catch (e) {
@@ -70,7 +79,8 @@ function parseBody(body) {
 		}
 	}
 
-	return sanitize.object(body)
+	// return sanitize.object(body)
+	return body
 }
 
 function handleRequest(res, headers, url, method, body, query, files) {
@@ -84,6 +94,9 @@ function handleRequest(res, headers, url, method, body, query, files) {
 var server = http.createServer().listen(1395);
 
 server.on("request", (req, res) => {
+	res.setHeader('Access-Control-Allow-Headers', 'authorization, content-type')
+	res.setHeader('Access-Control-Allow-Methods', 'POST, GET, PUT, DELETE, OPTIONS')
+	res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*')
 	var url = sanitize.url(req.url)
 	var headers = sanitize.object(req.headers)
 	var method = sanitize.string(req.method.toLowerCase())
@@ -107,6 +120,11 @@ server.on("request", (req, res) => {
 
 	}).on('end', () => {
 		body = parseBody(body)
+
+		if (method === "options") {
+			res.statusCode = 200
+			return res.end()
+		}
 
 		handleRequest(res, headers, url, method, body, query, files)
 	})

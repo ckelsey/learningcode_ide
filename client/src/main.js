@@ -3,6 +3,7 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
+import { EventBus } from './events.js'
 
 Vue.config.productionTip = false
 /* eslint-disable no-new */
@@ -11,6 +12,7 @@ new Vue({
   router,
   template: '<App/>',
   components: {
-    App
+    App,
+    EventBus
   }
 })
