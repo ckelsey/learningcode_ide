@@ -143,7 +143,6 @@ io.on('connection', function (socket) {
 	var term = spawn('bash')
 
 	term.stdout.on('data', function (data) {
-		console.log(data.toString());
 		socket.emit('output', data.toString())
 	})
 
