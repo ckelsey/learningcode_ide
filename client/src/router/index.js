@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import CommandLine from '@/components/CommandLine'
+import CommandLine from '@/components/commandLine/CommandLine'
 import CodeEditorPane from '@/components/editor/CodeEditorPane'
 import Viewer from '@/components/Viewer'
 

@@ -16,7 +16,7 @@ export default {
     }
   },
 
-  created () {
+  mounted () {
     var directory = JSON.parse(localStorage.getItem('directory'))
     this.directory = directory || {}
 
