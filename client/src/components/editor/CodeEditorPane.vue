@@ -16,14 +16,17 @@
 import Editor from './Editor'
 import EditorTab from './EditorTab'
 import FileNavigator from './FileNavigator'
-import { EventBus } from '../events.js'
+import { EventBus } from '../../events.js'
 
-function saveFile (editor) {
+function saveFile (editor, editors) {
   var xhr = new XMLHttpRequest()
   xhr.onreadystatechange = () => {
     if (xhr.readyState === 4 && xhr.status === 200) {
       editor.saved = true
+      editor.originalContent = editor.content
       EventBus.$emit('update-editor', editor)
+
+      localStorage.setItem('editors', JSON.stringify(editors))
     }
   }
   xhr.open('post', 'http://localhost:1395/api/file', true)
@@ -39,7 +42,8 @@ export default {
   },
 
   created () {
-    this.editors = {}
+    var editors = JSON.parse(localStorage.getItem('editors'))
+    this.editors = editors || {}
 
     EventBus.$on('open-item', (data) => {
       if (!this.editors[data.path]) {
@@ -55,6 +59,8 @@ export default {
           this.$set(this.editors[i], 'active', false)
         }
       }
+
+      localStorage.setItem('editors', JSON.stringify(this.editors))
     })
 
     EventBus.$on('activate-item', (data) => {
@@ -65,16 +71,22 @@ export default {
           this.$set(this.editors[i], 'active', false)
         }
       }
+
+      localStorage.setItem('editors', JSON.stringify(this.editors))
     })
 
     EventBus.$on('update-editor', (data) => {
       this.$set(this.editors, data.path, data)
+
+      localStorage.setItem('editors', JSON.stringify(this.editors))
     })
 
     EventBus.$on('rename-item', (data) => {
       if (this.editors[data.path]) {
         this.$set(this.editors, data.path, data)
       }
+
+      localStorage.setItem('editors', JSON.stringify(this.editors))
     })
 
     EventBus.$on('close-item', (data) => {
@@ -96,6 +108,8 @@ export default {
         this.$set(this.editors[lastKey], 'active', true)
         EventBus.$emit('update-editor', this.editors[lastKey])
       }
+
+      localStorage.setItem('editors', JSON.stringify(this.editors))
     })
 
     window.document.addEventListener('keydown', (e) => {
@@ -111,7 +125,7 @@ export default {
           }
         }
 
-        saveFile(editor)
+        saveFile(editor, this.editors)
       }
     }, false)
   },

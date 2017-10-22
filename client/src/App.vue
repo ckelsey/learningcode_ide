@@ -7,16 +7,10 @@
 
 <script>
 import navigation from './components/Navigation'
-import codeEditorPane from './components/CodeEditorPane'
+import codeEditorPane from './components/editor/CodeEditorPane'
 
 export default {
   name: 'app',
-
-  methods: {
-    handleKeyDown (ev) {
-      console.log(ev)
-    }
-  },
 
   components: {
     navigation,

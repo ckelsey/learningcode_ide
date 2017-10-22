@@ -17,10 +17,14 @@ export default {
   },
 
   created () {
+    var directory = JSON.parse(localStorage.getItem('directory'))
+    this.directory = directory || {}
+
     var xhr = new XMLHttpRequest()
     xhr.onreadystatechange = () => {
       if (xhr.readyState === 4 && xhr.status === 200) {
         this.directory = JSON.parse(xhr.responseText)
+        localStorage.setItem('directory', JSON.stringify(this.directory))
       }
     }
     xhr.open('GET', 'http://localhost:1395/api/dir', true)

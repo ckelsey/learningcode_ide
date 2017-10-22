@@ -10,8 +10,6 @@ module.exports = function (res, headers, body, query, files) {
 		url = path.join(url, body.path)
 	}
 
-	console.log(body, url);
-
 	fs.stat(url, function (err, stat) {
 		if (err) {
 			return utils.resolve(res, { status: 500, result: err })

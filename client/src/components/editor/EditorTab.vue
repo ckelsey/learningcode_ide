@@ -6,7 +6,7 @@
 </template>
 
 <script>
-import { EventBus } from '../events.js'
+import { EventBus } from '../../events.js'
 
 export default {
   name: 'EditorTab',
