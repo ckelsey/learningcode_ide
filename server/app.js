@@ -1,5 +1,6 @@
 const http = require('http')
 const sanitize = require("./sanitize")
+const pty = require('pty.js')
 
 
 /* SET CONTROLLERS */
@@ -9,7 +10,7 @@ const controllers = {
 	getFile: require("./controllers/file.js"),
 	saveFile: require("./controllers/file.save.js"),
 	rename: require("./controllers/rename.js"),
-	deleteItem: require("./controllers/delete.js"),
+	deleteItem: require("./controllers/delete.js")
 };
 
 
@@ -26,9 +27,7 @@ var routes = {
 		"/api/delete": "deleteItem"
 	},
 
-	"put": {
-		"/api/file": "saveFile"
-	},
+	"put": {},
 
 	"delete": {}
 }
@@ -85,6 +84,10 @@ function parseBody(body) {
 
 function handleRequest(res, headers, url, method, body, query, files) {
 
+	if (!controllers[routes[method][url]]) {
+		return
+	}
+
 	controllers[
 		routes[method][url]
 	](res, headers, body, query, files)
@@ -127,5 +130,27 @@ server.on("request", (req, res) => {
 		}
 
 		handleRequest(res, headers, url, method, body, query, files)
+	})
+})
+
+
+var ioServer = http.createServer().listen(1396);
+var io = require('socket.io')(ioServer)
+const { spawn } = require('child_process')
+
+io.on('connection', function (socket) {
+
+	var term = spawn('bash')
+
+	term.stdout.on('data', function (data) {
+		socket.emit('output', data.toString())
+	})
+
+	socket.on('input', function (data) {
+		term.stdin.write(data + "\n")
+	})
+
+	socket.on("disconnect", function () {
+		console.log("bye")
 	})
 })

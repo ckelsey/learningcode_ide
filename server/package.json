@@ -5,8 +5,8 @@
   "dependencies": {
     "file-type": "^6.2.0",
     "mkdirp": "^0.5.1",
+    "pty.js": "^0.3.1",
     "read-chunk": "^2.1.0",
-    "terminal.js": "^1.0.10",
-    "webterm": "^1.0.2"
+    "socket.io": "^2.0.4"
   }
 }
