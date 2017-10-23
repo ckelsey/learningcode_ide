@@ -111,7 +111,7 @@ input, input:focus{
   padding: 7px 21px;
   font-family: monospace;
   white-space: pre;
-  background: transparent;
+  background: #161d22;
   caret-color: #66d9ef;
   outline: none;
   box-sizing: border-box;

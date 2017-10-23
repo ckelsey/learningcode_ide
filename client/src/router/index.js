@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import CommandLine from '@/components/commandLine/CommandLine'
 import CodeEditorPane from '@/components/editor/CodeEditorPane'
-import Viewer from '@/components/Viewer'
+import Viewer from '@/components/viewer/Viewer'
 
 Vue.use(Router)
 

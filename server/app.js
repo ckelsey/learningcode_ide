@@ -1,6 +1,8 @@
 const http = require('http')
 const sanitize = require("./sanitize")
-const pty = require('pty.js')
+const fs = require("fs")
+const path = require("path")
+const config = require("./config/config")
 
 
 /* SET CONTROLLERS */
@@ -34,8 +36,6 @@ var routes = {
 
 
 
-/* SINCE RESTIFY AND EXPRESS WON'T PASS SECOPS, ROLLING OWN */
-
 function parseQuery(url) {
 	var query = url.split("?")[1]
 
@@ -58,8 +58,9 @@ function parseQuery(url) {
 	return {}
 }
 
+
+
 function parseBody(body) {
-	// body = body.replace(/</g, "&lt;").replace(/>/g, "&gt;")
 	try {
 		body = JSON.parse(body)
 	} catch (e) {
@@ -77,22 +78,32 @@ function parseBody(body) {
 			body = {}
 		}
 	}
-
-	// return sanitize.object(body)
 	return body
 }
 
-function handleRequest(res, headers, url, method, body, query, files) {
 
-	if (!controllers[routes[method][url]]) {
-		return
+
+function handleRequest(res, headers, url, method, body, query, files) {
+	var exists = false
+
+	try {
+		exists = fs.statSync(path.join(config.cwd, url))
+	} catch (e) {}
+
+	if (controllers[routes[method][url]]) {
+		controllers[ routes[method][url] ](res, headers, body, query, files)
+	} else if (exists) {
+		res.statusCode = 200;
+		res.write(fs.readFileSync(path.join(config.cwd, url)));
+		res.end();
+	} else {
+		res.statusCode = 404;
+		res.end();
 	}
 
-	controllers[
-		routes[method][url]
-	](res, headers, body, query, files)
-
 }
+
+
 
 var server = http.createServer().listen(1395);
 
@@ -132,6 +143,7 @@ server.on("request", (req, res) => {
 		handleRequest(res, headers, url, method, body, query, files)
 	})
 })
+
 
 
 var ioServer = http.createServer().listen(1396);
