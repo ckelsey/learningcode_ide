@@ -86,6 +86,8 @@ function parseBody(body) {
 function handleRequest(res, headers, url, method, body, query, files) {
 	var exists = false
 
+	console.log(url)
+
 	try {
 		exists = fs.statSync(path.join(config.cwd, url))
 	} catch (e) {}
@@ -102,8 +104,6 @@ function handleRequest(res, headers, url, method, body, query, files) {
 	}
 
 }
-
-
 
 var server = http.createServer().listen(1395);
 
